@@ -1,0 +1,55 @@
+data extraction:
+###GAN###
+python3 mainExtraction.py --dataDescription /work/lpzmateo/data/DL_shapes/shapes/SubCortical_shapes/HippoR_data_description.csv --feature_points Points --out /work/lpzmateo/data/DL_shapes/datasets/GAN_HippoR
+
+###Autoencoder###
+python3 mainExtraction.py --dataDescription /work/lpzmateo/data/DL_shapes/shapes/no_features_no_groups/autoencoder_dataset_description.csv --feature_points Points --out_feature_points Points --out /work/lpzmateo/data/DL_shapes/datasets/autoencoder_condyle
+
+
+Dataset creation:
+###Classification###
+#from vtk files
+python3 mainDataset.py --dataDescription /work/lpzmateo/data/DL_shapes/shapes/0_12_3_45_67/dataset_description.csv --out /work/lpzmateo/data/DL_shapes/datasets/0_12_3_45_67/ --test_size 0.1 --validation_size 0.1 --smote --feature_points Normals Mean_Curvature distanceGroup Points --feature_cells RANDOM ran --auto_complete
+
+#from tf records
+python3 mainDataset.py --dataDescription /work/lpzmateo/data/DL_shapes/shapes/0_12_3_45_67/tensorflow_dataset/tfrecords_info.json --out /work/lpzmateo/data/DL_shapes/shapes/0_12_3_45_67/tensorflow_dataset --test_size 0.1 --validation_size 0.1 --smote 
+
+###GAN###
+#from vtk files 
+python3 mainDataset.py --dataDescription /work/lpzmateo/data/DL_shapes/shapes/no_features_no_groups/dataset_description.csv --out /work/lpzmateo/data/DL_shapes/datasets/GAN_Dataset_test/ --feature_points Points 
+
+###Autoencoder###
+#condyle
+python3 mainDataset.py --dataDescription /work/lpzmateo/data/DL_shapes/shapes/no_features_no_groups/autoencoder_dataset_description.csv --out /work/lpzmateo/data/DL_shapes/datasets/autoencoder_condyle --test_size 0.1 --validation_size 0.1 --feature_points Points --out_feature_points Points
+
+#subcortical
+python3 mainDataset.py --dataDescription /work/lpzmateo/data/DL_shapes/shapes/SubCortical_shapes/autoencoder_data_description.csv --out /work/lpzmateo/data/DL_shapes/datasets/autoencoder_subcortical --test_size 0.1 --validation_size 0.1 --feature_points Points --out_feature_points Points
+
+
+network training:
+
+###Classification###
+python3 mainTrain.py --epochs 100 --dataset /work/lpzmateo/data/DL_shapes/shapes/0_12_3_45_67/tensorflow_dataset/dataset_info.json --feature_to_use point --out /work/lpzmateo/data/DL_shapes/model_classification_test
+
+###GAN###
+#condyle
+python3 mainTrain.py --epochs 100 --batch_size 27 --learning_rate 0.00001 --buffer_size 1000 --dataset  /work/lpzmateo/data/DL_shapes/datasets/GAN_Dataset_test/dataset_info.json --out /work/lpzmateo/data/DL_shapes/models/GAN_Condyle_test
+
+#subcortical
+python3 /work/lpzmateo/source/Projects/ShapeLearning/mainTrain.py --batch_size 43 --learning_rate 1e-5 --buffer_size 10000 --dataset /work/lpzmateo/data/DL_shapes/datasets/GAN_SubCortical/dataset_description.json --out /work/lpzmateo/data/DL_shapes/models/GAN_subCort_test/
+
+###Autoencoder###
+#condyle
+python3 mainTrain.py --epochs 100 --batch_size 30 --learning_rate 0.001 --dataset /work/lpzmateo/data/DL_shapes/datasets/autoencoder_condyle/dataset_info.json --feature_to_use point --out /work/lpzmateo/data/DL_shapes/models/condyle_autoencoder_test
+
+#subcortical
+python3 mainTrain.py --epochs 1000 --batch_size 30 --learning_rate 0.001 --dataset /work/lpzmateo/data/DL_shapes/datasets/autoencoder_subcortical/dataset_info.json --feature_to_use point --out /work/lpzmateo/data/DL_shapes/models/subcortical_autoencoder_test
+
+#Hippo R
+python3 mainTrain.py --epochs 1000 --batch_size 30 --learning_rate 0.001 --dataset /work/lpzmateo/data/DL_shapes/datasets/autoencoder_hippor/dataset_info.json --feature_to_use point --out /work/lpzmateo/data/DL_shapes/models/hippor_autoencoder_test
+
+
+
+evaluation
+###Classification###
+python3 mainEval.py  --model /work/lpzmateo/data/DL_shapes/models/model_info.json --input /work/lpzmateo/data/DL_shapes/datasets/0_12_3_45_67/test/test_description.csv --out /work/lpzmateo/data/DL_shapes/predictions/prediction.csv
